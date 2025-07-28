@@ -1,12 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import "./canvas.css";
+import PixelToSymbol from "./particles";
+import type { PixelImage } from "../types";
 
 function DrawSymbol() {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const functionalImageArr = useRef<
-    { r: number; g: number; b: number; a: number; x: number; y: number }[]
-  >([]);
+  const [functionalImageArr, setFunctionalImageArr] = useState<PixelImage[]>(
+    []
+  );
   const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const imageRef = useRef<HTMLImageElement | null>(null);
+  const [imageLocation, setImageLocation] = useState<number[]>([0, 0]);
 
   useEffect(() => {
     // Creates a refrence to current canvas
@@ -32,25 +36,44 @@ function DrawSymbol() {
     };
   }, []);
 
-  function loadImage() {
+  function drawImage(size: number) {
     const img: HTMLImageElement = new Image();
-    img.src = "/letterATest.png";
-    img.onload = () => {
+    imageRef.current = img;
+    imageRef.current.src = "/letterATest.png";
+
+    imageRef.current.onload = () => {
       if (ctx) {
         // Draw image to the center of the canvas
-        const x: number = (ctx.canvas.width - img.width) / 2;
-        const y: number = (ctx.canvas.height - img.height) / 2;
-        ctx.drawImage(img, x, y);
-        // Load array data
-        if (functionalImageArr.current.length === 0) {
-          const imageData: number[] = Array.from(
-            ctx.getImageData(x, y, img.width, img.height).data
-          );
-          functionalArrayToObject(imageData, x, y, img.width);
-        }
+        const x = (ctx.canvas.width - size) / 2;
+        const y = (ctx.canvas.height - size) / 2;
+        setImageLocation([x, y]);
+        ctx.drawImage(imageRef.current!, x, y, size, size);
+        loadImage();
       }
     };
   }
+
+  function loadImage() {
+    if (!ctx || !imageRef.current) return;
+    // Load array data
+    if (functionalImageArr.length === 0) {
+      const imageData: number[] = Array.from(
+        ctx.getImageData(
+          imageLocation[0],
+          imageLocation[1],
+          imageRef.current!.width,
+          imageRef.current!.height
+        ).data
+      );
+      functionalArrayToObject(
+        imageData,
+        imageLocation[0],
+        imageLocation[1],
+        imageRef.current!.width
+      );
+    }
+  }
+
   // Shrink to a functional array of objects
   function functionalArrayToObject(
     arr: number[],
@@ -58,69 +81,35 @@ function DrawSymbol() {
     offsetY: number,
     imgWidth: number
   ) {
-    const pixels: {
-      r: number;
-      g: number;
-      b: number;
-      a: number;
-      x: number;
-      y: number;
-    }[] = [];
+    const pixels: PixelImage[] = [];
     let px = 0;
     for (let i = 0; i < arr.length; i += 4) {
       const localX = px % imgWidth;
       const localY = Math.floor(px / imgWidth);
-      pixels.push({
-        r: arr[i],
-        g: arr[i + 1],
-        b: arr[i + 2],
-        a: arr[i + 3],
-        x: localX + offsetX, // relative to canvas
-        y: localY + offsetY, // relative to canvas
-      });
+      if (arr[i] !== 0 || arr[i + 1] !== 0 || arr[i + 2] !== 0) {
+        pixels.push({
+          r: arr[i],
+          g: arr[i + 1],
+          b: arr[i + 2],
+          a: arr[i + 3],
+          x: localX + offsetX, // relative to canvas
+          y: localY + offsetY, // relative to canvas
+        });
+      }
       px++;
     }
-    functionalImageArr.current = pixels;
-  }
-
-  function drawPixel(x: number, y: number) {
-    if (!ctx) return;
-    ctx.fillStyle = "red";
-    ctx.fillRect(x, y, 4, 4);
-  }
-
-  function drawRandom() {
-    for (let i = 0; i < 100; i++) {
-      let random: number = Math.floor(
-        Math.random() * functionalImageArr.current.length
-      );
-      let currentPixel = functionalImageArr.current[random];
-      if (currentPixel.r > 0 || currentPixel.g > 0 || currentPixel.b > 0) {
-        drawPixel(currentPixel.x, currentPixel.y);
-      }
-    }
+    setFunctionalImageArr(pixels);
   }
 
   useEffect(() => {
     if (!ctx) return;
-    loadImage();
-    let aniId: number;
-    aniId = requestAnimationFrame(() => {});
-    return () => {
-      cancelAnimationFrame(aniId);
-    };
+    drawImage(500);
   }, [ctx]);
-
-  useEffect(() => {
-    if (functionalImageArr.current.length !== 0) {
-      drawRandom();
-    }
-  }, [functionalImageArr.current]);
 
   return (
     <>
       <canvas className="transparent-canvas" ref={canvasRef}></canvas>
-      {/* <canvas className="main-canvas" ref={canvasRef}></canvas> */}
+      <PixelToSymbol imageArr={functionalImageArr} />
     </>
   );
 }
