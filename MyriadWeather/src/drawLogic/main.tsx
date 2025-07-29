@@ -10,7 +10,6 @@ function DrawSymbol() {
   const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
-  const [imageLocation, setImageLocation] = useState<number[]>([0, 0]);
 
   useEffect(() => {
     // Creates a refrence to current canvas
@@ -35,46 +34,35 @@ function DrawSymbol() {
       window.removeEventListener("resize", resizeCanvas);
     };
   }, []);
-
+  //Draws the image sets it center and calls loadImage
   function drawImage(size: number) {
     const img: HTMLImageElement = new Image();
     imageRef.current = img;
-    imageRef.current.src = "/letterATest.png";
+    imageRef.current.src = "/rain.png";
 
     imageRef.current.onload = () => {
       if (ctx) {
         // Draw image to the center of the canvas
         const x = (ctx.canvas.width - size) / 2;
         const y = (ctx.canvas.height - size) / 2;
-        setImageLocation([x, y]);
         ctx.drawImage(imageRef.current!, x, y, size, size);
-        loadImage();
+        loadImage(size, x, y);
       }
     };
   }
-
-  function loadImage() {
+  // Stores the image data in a functional array
+  function loadImage(size: number, x: number, y: number) {
     if (!ctx || !imageRef.current) return;
     // Load array data
     if (functionalImageArr.length === 0) {
       const imageData: number[] = Array.from(
-        ctx.getImageData(
-          imageLocation[0],
-          imageLocation[1],
-          imageRef.current!.width,
-          imageRef.current!.height
-        ).data
+        ctx.getImageData(x, y, size, size).data
       );
-      functionalArrayToObject(
-        imageData,
-        imageLocation[0],
-        imageLocation[1],
-        imageRef.current!.width
-      );
+      functionalArrayToObject(imageData, x, y, size);
     }
   }
 
-  // Shrink to a functional array of objects
+  // Convert large array into array of objects
   function functionalArrayToObject(
     arr: number[],
     offsetX: number,
@@ -86,7 +74,7 @@ function DrawSymbol() {
     for (let i = 0; i < arr.length; i += 4) {
       const localX = px % imgWidth;
       const localY = Math.floor(px / imgWidth);
-      if (arr[i] !== 0 || arr[i + 1] !== 0 || arr[i + 2] !== 0) {
+      if (arr[i + 3] !== 0) {
         pixels.push({
           r: arr[i],
           g: arr[i + 1],

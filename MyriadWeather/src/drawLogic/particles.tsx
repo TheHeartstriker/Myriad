@@ -39,7 +39,7 @@ function PixelToSymbol({ imageArr }: { imageArr: PixelImage[] }) {
 
   function initParticles() {
     if (!ctx || !imageArrRef.current) return;
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 500; i++) {
       let index: number = Math.floor(
         Math.random() * imageArrRef.current.length
       );
@@ -53,8 +53,22 @@ function PixelToSymbol({ imageArr }: { imageArr: PixelImage[] }) {
           y: imageArrRef.current[index].y,
         },
       };
-      drawSquare(temp.target.x, temp.target.y, 5);
       pixelArrRef.current.push(temp);
+    }
+  }
+
+  function updateParticles() {
+    for (const pixel of pixelArrRef.current) {
+      let euclideanDistance = Math.sqrt(
+        Math.pow(pixel.target.x - pixel.location.x, 2) +
+          Math.pow(pixel.target.y - pixel.location.y, 2)
+      );
+      //If the distance is greater than 1, move the pixel towards the target
+      if (euclideanDistance > 1) {
+        pixel.location.x += (pixel.target.x - pixel.location.x) * 0.1;
+        pixel.location.y += (pixel.target.y - pixel.location.y) * 0.1;
+      }
+      drawSquare(pixel.location.x, pixel.location.y, 2);
     }
   }
 
@@ -62,6 +76,16 @@ function PixelToSymbol({ imageArr }: { imageArr: PixelImage[] }) {
     if (!imageArr || imageArr.length === 0) return;
     imageArrRef.current = imageArr;
     initParticles();
+    const aniId: number = requestAnimationFrame(function animate() {
+      if (ctx) {
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        updateParticles();
+      }
+      requestAnimationFrame(animate);
+    });
+    return () => {
+      cancelAnimationFrame(aniId);
+    };
   }, [imageArr]);
 
   return <canvas className="main-canvas" ref={canvasRef}></canvas>;
