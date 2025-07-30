@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import "./canvas.css";
 import PixelToSymbol from "./particles";
-import type { PixelImage } from "../types";
+import type { PixelImage } from "../../types";
 
 function DrawSymbol() {
   const [functionalImageArr, setFunctionalImageArr] = useState<PixelImage[]>(

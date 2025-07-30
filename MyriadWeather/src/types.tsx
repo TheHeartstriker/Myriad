@@ -11,3 +11,14 @@ export type PixelImage = {
   x: number;
   y: number;
 };
+
+export type WeatherData = {
+  temp: number;
+  humidity: number;
+  pressure: number;
+  feelsLike: number;
+  grnd_level: number;
+  sea_level: number;
+  temp_min: number;
+  temp_max: number;
+};

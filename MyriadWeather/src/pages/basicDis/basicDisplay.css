@@ -1,0 +1,11 @@
+.basic-display {
+  width: 100%;
+  height: 25vh;
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  background-color: aqua;
+  z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+}
