@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import "./canvas.css";
 import PixelToSymbol from "./particles";
-import type { PixelImage, WeatherData } from "../../types";
+import { tempToRGB } from "../util";
+import type { PixelImage, WeatherData, ColorData } from "../../types";
 
 function DrawSymbol({ weather }: { weather: WeatherData | null }) {
   const [functionalImageArr, setFunctionalImageArr] = useState<PixelImage[]>(
@@ -97,7 +98,12 @@ function DrawSymbol({ weather }: { weather: WeatherData | null }) {
   return (
     <>
       <canvas className="transparent-canvas" ref={canvasRef}></canvas>
-      <PixelToSymbol imageArr={functionalImageArr} />
+      {weather && (
+        <PixelToSymbol
+          imageArr={functionalImageArr}
+          color={tempToRGB(weather.temp)}
+        />
+      )}
     </>
   );
 }

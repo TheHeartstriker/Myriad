@@ -1,15 +1,20 @@
 import { useEffect, useState, useRef } from "react";
-import type { PixelDict, PixelImage } from "../types";
+import type { PixelDict, PixelImage, ColorData } from "../../types";
 
-function PixelToSymbol({ imageArr }: { imageArr: PixelImage[] }) {
+function PixelToSymbol({
+  imageArr,
+  color,
+}: {
+  imageArr: PixelImage[];
+  color: ColorData;
+}) {
   //All the locations inside the image
   const imageArrRef = useRef(imageArr);
   // All the pixels
   const pixelArrRef = useRef<PixelDict[]>([]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-
   const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
-
+  //Init canvas
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -30,13 +35,13 @@ function PixelToSymbol({ imageArr }: { imageArr: PixelImage[] }) {
       window.removeEventListener("resize", resizeCanvas);
     };
   }, [canvasRef]);
-
+  //Draw pixel function
   function drawSquare(x: number, y: number, size: number) {
     if (!ctx) return;
-    ctx.fillStyle = `rgba(${x}, ${y}, 0, 1)`;
+    ctx.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, 1)`;
     ctx.fillRect(x, y, size, size);
   }
-
+  //Initialize particles
   function initParticles() {
     if (!ctx || !imageArrRef.current) return;
     for (let i = 0; i < 500; i++) {
@@ -56,7 +61,7 @@ function PixelToSymbol({ imageArr }: { imageArr: PixelImage[] }) {
       pixelArrRef.current.push(temp);
     }
   }
-
+  //Update particles
   function updateParticles() {
     for (const pixel of pixelArrRef.current) {
       let euclideanDistance = Math.sqrt(
@@ -71,7 +76,7 @@ function PixelToSymbol({ imageArr }: { imageArr: PixelImage[] }) {
       drawSquare(pixel.location.x, pixel.location.y, 2);
     }
   }
-
+  //Render and loop the particles
   useEffect(() => {
     if (!imageArr || imageArr.length === 0) return;
     imageArrRef.current = imageArr;
@@ -86,7 +91,7 @@ function PixelToSymbol({ imageArr }: { imageArr: PixelImage[] }) {
     return () => {
       cancelAnimationFrame(aniId);
     };
-  }, [imageArr]);
+  }, [imageArr, ctx, color]);
 
   return <canvas className="main-canvas" ref={canvasRef}></canvas>;
 }

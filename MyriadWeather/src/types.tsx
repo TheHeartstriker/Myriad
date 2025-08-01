@@ -22,3 +22,9 @@ export type WeatherData = {
   temp_min: number;
   temp_max: number;
 };
+
+export type ColorData = {
+  r: number;
+  g: number;
+  b: number;
+};
