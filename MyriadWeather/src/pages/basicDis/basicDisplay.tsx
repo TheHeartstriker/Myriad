@@ -1,19 +1,7 @@
-import { getWeatherAsync } from "../../services/weather";
-import { useEffect, useState } from "react";
 import type { WeatherData } from "../../types";
 import "./basicDisplay.css";
 
-function BasicDisplay() {
-  const [weather, setWeather] = useState<WeatherData | null>(null);
-
-  useEffect(() => {
-    const fetchWeather = async () => {
-      const data = await getWeatherAsync();
-      setWeather(data);
-    };
-    fetchWeather();
-  }, []);
-
+function BasicDisplay({ weather }: { weather: WeatherData | null }) {
   return (
     <div className="basic-display">
       {weather ? (

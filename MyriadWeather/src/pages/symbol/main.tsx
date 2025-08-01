@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import "./canvas.css";
 import PixelToSymbol from "./particles";
-import type { PixelImage } from "../../types";
+import type { PixelImage, WeatherData } from "../../types";
 
-function DrawSymbol() {
+function DrawSymbol({ weather }: { weather: WeatherData | null }) {
   const [functionalImageArr, setFunctionalImageArr] = useState<PixelImage[]>(
     []
   );
