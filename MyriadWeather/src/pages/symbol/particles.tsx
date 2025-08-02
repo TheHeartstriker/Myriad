@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, use } from "react";
 import type { PixelDict, PixelImage, ColorData } from "../../types";
 
 function PixelToSymbol({
@@ -6,7 +6,7 @@ function PixelToSymbol({
   color,
 }: {
   imageArr: PixelImage[];
-  color: ColorData;
+  color: ColorData | false;
 }) {
   //All the locations inside the image
   const imageArrRef = useRef(imageArr);
@@ -14,6 +14,9 @@ function PixelToSymbol({
   const pixelArrRef = useRef<PixelDict[]>([]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
+  const colorRef = useRef<ColorData | false>(color);
+  const currentColor = useRef<ColorData>({ r: 255, g: 255, b: 255 });
+  const transitionSpeed = 0.0001;
   //Init canvas
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -36,10 +39,27 @@ function PixelToSymbol({
     };
   }, [canvasRef]);
   //Draw pixel function
+  // If we dont have weather data we draw white when we do when transition to the target color
   function drawSquare(x: number, y: number, size: number) {
     if (!ctx) return;
-    ctx.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, 1)`;
+    incrementWhiteToColor();
+
+    ctx.fillStyle = `rgba(${Math.round(currentColor.current.r)}, ${Math.round(
+      currentColor.current.g
+    )}, ${Math.round(currentColor.current.b)}, 1)`;
     ctx.fillRect(x, y, size, size);
+  }
+  //Increment color towards target color
+  function incrementWhiteToColor() {
+    if (!colorRef.current) return;
+    // Transition to target color
+    const target = colorRef.current;
+    currentColor.current.r +=
+      (target.r - currentColor.current.r) * transitionSpeed;
+    currentColor.current.g +=
+      (target.g - currentColor.current.g) * transitionSpeed;
+    currentColor.current.b +=
+      (target.b - currentColor.current.b) * transitionSpeed;
   }
   //Initialize particles
   function initParticles() {
@@ -70,8 +90,8 @@ function PixelToSymbol({
       );
       //If the distance is greater than 1, move the pixel towards the target
       if (euclideanDistance > 1) {
-        pixel.location.x += (pixel.target.x - pixel.location.x) * 0.1;
-        pixel.location.y += (pixel.target.y - pixel.location.y) * 0.1;
+        pixel.location.x += (pixel.target.x - pixel.location.x) * 0.04;
+        pixel.location.y += (pixel.target.y - pixel.location.y) * 0.04;
       }
       drawSquare(pixel.location.x, pixel.location.y, 2);
     }
@@ -91,7 +111,11 @@ function PixelToSymbol({
     return () => {
       cancelAnimationFrame(aniId);
     };
-  }, [imageArr, ctx, color]);
+  }, [imageArr, ctx]);
+
+  useEffect(() => {
+    colorRef.current = color;
+  }, [color]);
 
   return <canvas className="main-canvas" ref={canvasRef}></canvas>;
 }

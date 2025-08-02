@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import "./canvas.css";
 import PixelToSymbol from "./particles";
 import { tempToRGB } from "../util";
-import type { PixelImage, WeatherData, ColorData } from "../../types";
+import type { PixelImage, WeatherData } from "../../types";
 
 function DrawSymbol({ weather }: { weather: WeatherData | null }) {
   const [functionalImageArr, setFunctionalImageArr] = useState<PixelImage[]>(
@@ -11,25 +11,20 @@ function DrawSymbol({ weather }: { weather: WeatherData | null }) {
   const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
-
+  // Initializes the canvas and refresh params
   useEffect(() => {
-    // Creates a refrence to current canvas
     const canvas: HTMLCanvasElement | null = canvasRef.current;
     if (!canvas) return;
 
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    // Gets the context of the canvas
     const context = canvas.getContext("2d");
     setCtx(context);
-    // Function to resize the canvas
     const resizeCanvas = () => {
-      // The resize
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
       setCtx(canvas.getContext("2d"));
     };
-    // Event listener where the resizeCanvas function is called
     window.addEventListener("resize", resizeCanvas);
     return () => {
       window.removeEventListener("resize", resizeCanvas);
@@ -64,6 +59,7 @@ function DrawSymbol({ weather }: { weather: WeatherData | null }) {
   }
 
   // Convert large array into array of objects
+  //Also discards alpha values of 0
   function functionalArrayToObject(
     arr: number[],
     offsetX: number,
@@ -89,7 +85,7 @@ function DrawSymbol({ weather }: { weather: WeatherData | null }) {
     }
     setFunctionalImageArr(pixels);
   }
-
+  //Draws with a set 500px size
   useEffect(() => {
     if (!ctx) return;
     drawImage(500);
@@ -98,12 +94,10 @@ function DrawSymbol({ weather }: { weather: WeatherData | null }) {
   return (
     <>
       <canvas className="transparent-canvas" ref={canvasRef}></canvas>
-      {weather && (
-        <PixelToSymbol
-          imageArr={functionalImageArr}
-          color={tempToRGB(weather.temp)}
-        />
-      )}
+      <PixelToSymbol
+        imageArr={functionalImageArr}
+        color={weather?.temp ? tempToRGB(weather.temp) : false}
+      />
     </>
   );
 }
