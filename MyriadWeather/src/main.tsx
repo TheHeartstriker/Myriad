@@ -6,20 +6,20 @@ import { getWeatherAsync } from "./services/weather";
 import type { WeatherData } from "./types";
 
 function App() {
-  const [weather, setWeather] = useState<WeatherData | null>(null);
+  // const [weather, setWeather] = useState<WeatherData | null>(null);
 
-  useEffect(() => {
-    async function fetchWeather() {
-      const weatherData = await getWeatherAsync();
-      setWeather(weatherData);
-    }
-    fetchWeather();
-  }, []);
+  // useEffect(() => {
+  //   async function fetchWeather() {
+  //     const weatherData = await getWeatherAsync();
+  //     setWeather(weatherData);
+  //   }
+  //   fetchWeather();
+  // }, []);
 
   return (
     <>
-      <BasicDisplay weather={weather} />
-      <DrawSymbol weather={weather} />
+      {/* <BasicDisplay weather={weather} /> */}
+      <DrawSymbol weather={null} />
     </>
   );
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, use } from "react";
+import { useEffect, useState, useRef } from "react";
 import type { PixelDict, PixelImage, ColorData } from "../../types";
 
 function PixelToSymbol({
@@ -64,7 +64,7 @@ function PixelToSymbol({
   //Initialize particles
   function initParticles() {
     if (!ctx || !imageArrRef.current) return;
-    for (let i = 0; i < 500; i++) {
+    for (let i = 0; i < 750; i++) {
       let index: number = Math.floor(
         Math.random() * imageArrRef.current.length
       );

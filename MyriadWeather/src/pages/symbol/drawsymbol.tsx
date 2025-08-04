@@ -34,7 +34,7 @@ function DrawSymbol({ weather }: { weather: WeatherData | null }) {
   function drawImage(size: number) {
     const img: HTMLImageElement = new Image();
     imageRef.current = img;
-    imageRef.current.src = "/rain.png";
+    imageRef.current.src = "/yinYang.png";
 
     imageRef.current.onload = () => {
       if (ctx) {

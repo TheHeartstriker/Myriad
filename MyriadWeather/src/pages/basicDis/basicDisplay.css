@@ -16,6 +16,10 @@
   animation: fadeIn 1.5s ease-in-out;
 }
 
+body {
+  background-color: black;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
