@@ -6,6 +6,13 @@ function MultCircle() {
   const points = useRef<number[][]>([]);
   const multValue = useRef<number>(2);
   const frameId = useRef<number | null>(null);
+  const colorRange = useRef<{ min: number; max: number }>({
+    min: 190,
+    max: 230,
+  });
+  const maxMinLength = useRef<number[]>([0, 0]);
+  const radius = useRef<number>(500);
+  const pointsCount = useRef<number>(150);
 
   useEffect(() => {
     const canvas: HTMLCanvasElement | null = canvasRef.current;
@@ -26,13 +33,36 @@ function MultCircle() {
     };
   }, []);
 
-  function drawLine(x1: number, y1: number, x2: number, y2: number) {
+  function drawLine(
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+    hue: number
+  ) {
     if (!ctx) return;
     ctx.beginPath();
     ctx.moveTo(x1, y1);
     ctx.lineTo(x2, y2);
-    ctx.strokeStyle = "red";
+    ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`;
     ctx.stroke();
+  }
+
+  function maxMinLineLength() {
+    if (!ctx || !canvasRef.current) return;
+    maxMinLength.current[1] = radius.current * 2;
+    maxMinLength.current[0] =
+      2 * radius.current * Math.sin(Math.PI / pointsCount.current);
+  }
+
+  //Turn length into color hue
+  // Map the length to a hue value
+  function lengthToHue(length: number): number {
+    const minLength = maxMinLength.current[0];
+    const maxLength = maxMinLength.current[1];
+    const hueRange = colorRange.current.max - colorRange.current.min;
+    const normalizedLength = (length - minLength) / (maxLength - minLength);
+    return Math.round(colorRange.current.min + normalizedLength * hueRange);
   }
 
   function createCirclePoints(radius: number, count: number) {
@@ -59,13 +89,15 @@ function MultCircle() {
       const jump: number = Math.floor((multValue.current * i) % len);
       const [x1, y1] = points.current[i];
       const [x2, y2] = points.current[jump];
-      drawLine(x1, y1, x2, y2);
+      const lineLength = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+      drawLine(x1, y1, x2, y2, lengthToHue(lineLength));
     }
   }
 
   useEffect(() => {
     if (!ctx || !canvasRef.current) return;
-    createCirclePoints(500, 150);
+    createCirclePoints(radius.current, pointsCount.current);
+    maxMinLineLength();
     //Render
     function animate() {
       frameId.current = requestAnimationFrame(animate);
