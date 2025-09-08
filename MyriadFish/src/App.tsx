@@ -1,11 +1,14 @@
 import "./App.css";
 import { useEffect, useRef, useState } from "react";
 import { Vector } from "./Vector.ts";
-
-type LifePoint = {
-  position: Vector;
-  disConstraint: number;
-};
+import type { LifePoint } from "./Types.ts";
+import { createDrawArr } from "./Shapes.ts";
+import {
+  drawOutline,
+  drawPoints,
+  drawMainPoints,
+  drawFullForm,
+} from "./DrawShapes.ts";
 
 const conShape = [20, 24, 28, 32, 32, 32, 28, 24, 20, 16, 12];
 
@@ -35,31 +38,6 @@ function App() {
       window.removeEventListener("resize", resizeCanvas);
     };
   }, []);
-
-  function drawPoint(v: LifePoint) {
-    if (!ctx) return;
-    // Draw the center point
-    ctx.beginPath();
-    ctx.arc(v.position.x, v.position.y, 2.5, 0, Math.PI * 2);
-    ctx.fillStyle = "black";
-    ctx.fill();
-    // Draw the outline
-    ctx.beginPath();
-    ctx.arc(v.position.x, v.position.y, v.disConstraint, 0, Math.PI * 2);
-    ctx.strokeStyle = "black";
-    ctx.stroke();
-  }
-
-  function drawShape(points: Vector[]) {
-    if (!ctx || points.length < 2) return;
-    ctx.beginPath();
-    ctx.moveTo(points[0].x, points[0].y);
-    for (let i = 1; i < points.length; i++) {
-      ctx.lineTo(points[i].x, points[i].y);
-    }
-    ctx.closePath();
-    ctx.stroke();
-  }
 
   //Check the constraint and move the points if they are too far apart
   function constrainCheck(i: number) {
@@ -91,47 +69,6 @@ function App() {
       testVec.current.push({ position: pos, disConstraint: disConstraint });
     }
   }
-  //Create a array of point across the circles to the left and right
-  function createDrawArr(
-    i: number,
-    leftPoints: Vector[] = [],
-    rightPoints: Vector[] = []
-  ) {
-    if (!ctx) return;
-    if (i >= testVec.current.length - 1) return;
-
-    const current = testVec.current[i];
-    const next = testVec.current[i + 1];
-
-    // Direction vector (front)
-    const dx = next.position.x - current.position.x;
-    const dy = next.position.y - current.position.y;
-    const len = Math.sqrt(dx * dx + dy * dy);
-    if (len === 0) return;
-
-    // Normalize direction
-    const frontX = dx / len;
-    const frontY = dy / len;
-
-    // Perpendicular vectors
-    const perpLeftX = -frontY;
-    const perpLeftY = frontX;
-    const perpRightX = frontY;
-    const perpRightY = -frontX;
-
-    // Leftmost and rightmost points on the circle
-    const left = new Vector(
-      current.position.x + perpLeftX * current.disConstraint,
-      current.position.y + perpLeftY * current.disConstraint
-    );
-    const right = new Vector(
-      current.position.x + perpRightX * current.disConstraint,
-      current.position.y + perpRightY * current.disConstraint
-    );
-
-    leftPoints.push(left);
-    rightPoints.push(right);
-  }
 
   function render() {
     if (!ctx || !testVec.current.length) return;
@@ -141,14 +78,13 @@ function App() {
     testVec.current[0].position.x = mousePos.current.x;
     testVec.current[0].position.y = mousePos.current.y;
 
-    const leftPoints: Vector[] = [];
-    const rightPoints: Vector[] = [];
     for (let i = 0; i < testVec.current.length - 1; i++) {
-      createDrawArr(i, leftPoints, rightPoints);
       constrainCheck(i);
+      drawMainPoints(testVec.current[i], ctx);
     }
-    drawVec.current = [...leftPoints, ...rightPoints.reverse()];
-    drawShape(drawVec.current);
+    let { outlinePoints } = createDrawArr(testVec.current, 50);
+    drawVec.current = outlinePoints ?? [];
+    drawPoints(drawVec.current, ctx);
   }
 
   useEffect(() => {

@@ -35,6 +35,10 @@ export class Vector {
     return Math.sqrt(this.x * this.x + this.y * this.y);
   }
 
+  length(): number {
+    return this.mag();
+  }
+
   normalize(): Vector {
     const mag = this.mag();
     if (mag > 0) {
