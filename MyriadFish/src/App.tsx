@@ -1,14 +1,14 @@
 import "./App.css";
 import { useEffect, useRef, useState } from "react";
-import { Vector } from "./Vector.ts";
-import type { LifePoint } from "./Types.ts";
-import { createDrawArr } from "./Shapes.ts";
+import { Vector } from "./helper/Vector.ts";
+import type { LifePoint } from "./types/Types.ts";
+import { createDrawArr } from "./shapes/Shapes.ts";
 import {
   drawOutline,
   drawPoints,
   drawMainPoints,
   drawFullForm,
-} from "./DrawShapes.ts";
+} from "./shapes/DrawShapes.ts";
 
 const conShape = [20, 24, 28, 32, 32, 32, 28, 24, 20, 16, 12];
 
@@ -82,7 +82,7 @@ function App() {
       constrainCheck(i);
       drawMainPoints(testVec.current[i], ctx);
     }
-    let { outlinePoints } = createDrawArr(testVec.current, 50);
+    let { outlinePoints } = createDrawArr(testVec.current, 25);
     drawVec.current = outlinePoints ?? [];
     drawPoints(drawVec.current, ctx);
   }

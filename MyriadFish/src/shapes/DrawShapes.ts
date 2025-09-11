@@ -1,5 +1,5 @@
-import { Vector } from "./Vector";
-import type { LifePoint } from "./Types";
+import { Vector } from "../helper/Vector";
+import type { LifePoint } from "../types/Types";
 export function drawOutline(points: Vector[], ctx: CanvasRenderingContext2D) {
   if (!ctx || points.length < 2) return;
   ctx.beginPath();
@@ -16,7 +16,7 @@ export function drawPoints(points: Vector[], ctx: CanvasRenderingContext2D) {
   ctx.fillStyle = "red";
   for (let i = 0; i < points.length; i++) {
     ctx.beginPath();
-    ctx.arc(points[i].x, points[i].y, 3, 0, Math.PI * 2);
+    ctx.arc(points[i].x, points[i].y, 2, 0, Math.PI * 2);
     ctx.fill();
   }
 }
@@ -26,7 +26,7 @@ export function drawMainPoints(
   ctx: CanvasRenderingContext2D
 ) {
   if (!ctx) return;
-  ctx.strokeStyle = "blue";
+  ctx.strokeStyle = "white";
   ctx.beginPath();
   ctx.arc(
     mainP.position.x,
