@@ -6,11 +6,30 @@ import { createDrawArr } from "./shapes/Shapes.ts";
 import {
   drawOutline,
   drawPoints,
-  drawMainPoints,
+  drawRadiusOutline,
   drawFullForm,
 } from "./shapes/DrawShapes.ts";
 
-const conShape = [20, 24, 28, 32, 32, 32, 28, 24, 20, 16, 12];
+const disConstraint = 10;
+
+let conShape: number[] = [];
+let startPoint = 7.5;
+const loopLength = 30;
+
+for (let i = 0; i < loopLength; i++) {
+  const percent = (i / (loopLength - 1)) * 100;
+  let current = startPoint;
+  if (percent <= 20) {
+    startPoint += 1;
+  } else if (percent > 20 && percent <= 40) {
+    startPoint += 1.5;
+  } else if (percent > 40 && percent <= 80) {
+    startPoint += 0.5;
+  } else {
+    startPoint -= 1;
+  }
+  conShape.push(startPoint);
+}
 
 function App() {
   const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
@@ -44,7 +63,6 @@ function App() {
     if (!ctx) return;
     const v1 = testVec.current[i].position;
     const v2 = testVec.current[i + 1].position;
-    const disConstraint = testVec.current[i].disConstraint;
     const dist = Math.sqrt((v2.x - v1.x) ** 2 + (v2.y - v1.y) ** 2);
     if (dist > disConstraint) {
       const diff = dist - disConstraint;
@@ -62,11 +80,10 @@ function App() {
     testVec.current = [];
     const startX = window.innerWidth / 2;
     const startY = window.innerHeight / 2;
-    const spacing = 15;
     for (let i = 0; i < conShape.length; i++) {
-      const pos = new Vector(startX, startY + i * spacing);
-      const disConstraint = conShape[i];
-      testVec.current.push({ position: pos, disConstraint: disConstraint });
+      const pos = new Vector(startX, startY + i * conShape[i]);
+      const radius = conShape[i];
+      testVec.current.push({ position: pos, radius: radius });
     }
   }
 
@@ -74,17 +91,25 @@ function App() {
     if (!ctx || !testVec.current.length) return;
     ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
     ctx.fillStyle = "black";
+    const length = testVec.current.length - 1;
 
-    testVec.current[0].position.x = mousePos.current.x;
-    testVec.current[0].position.y = mousePos.current.y;
+    testVec.current[length].position.x = mousePos.current.x;
+    testVec.current[length].position.y = mousePos.current.y;
 
-    for (let i = 0; i < testVec.current.length - 1; i++) {
+    // Backward pass (tail to head)
+    for (let i = length - 1; i >= 0; i--) {
       constrainCheck(i);
-      drawMainPoints(testVec.current[i], ctx);
     }
-    let { outlinePoints } = createDrawArr(testVec.current, 25);
+    // Forward pass (head to tail)
+    for (let i = 0; i < length; i++) {
+      constrainCheck(i);
+    }
+
+    let { outlinePoints } = createDrawArr(testVec.current);
     drawVec.current = outlinePoints ?? [];
+    drawRadiusOutline(testVec.current, ctx);
     drawPoints(drawVec.current, ctx);
+    // drawFullForm(drawVec.current, ctx);
   }
 
   useEffect(() => {
