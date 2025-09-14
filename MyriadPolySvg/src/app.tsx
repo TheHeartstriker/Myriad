@@ -1,33 +1,34 @@
 import Poly from "./assets/poly.tsx";
 import "./App.css";
 import { useEffect, useRef } from "react";
-import type { IdArr } from "./types";
+import type { IdValue } from "./types";
 import { darkenDistance, darkenColorDistance } from "./color/colorType.tsx";
 import { rgbToHsl } from "./color/colorChange.tsx";
 
 function App() {
   const mouseRef = useRef({ x: 0, y: 0 });
-  const currentPolyRef = useRef<SVGSVGElement | null>(null);
-  const otherPolyRef = useRef<IdArr[]>([]);
+  const otherPolyRef = useRef<IdValue[]>([]);
 
   function mouseMove(e: MouseEvent) {
     mouseRef.current.x = e.clientX;
     mouseRef.current.y = e.clientY;
-    currentPolyRef.current = document.elementFromPoint(
-      mouseRef.current.x,
-      mouseRef.current.y
-    ) as SVGSVGElement;
+
     for (const i of otherPolyRef.current) {
       updateDistances(i);
       //darkenDistance(i);
-      darkenColorDistance(i);
+      darkenColorDistance(i, 1000, [0.2, 0.8]);
     }
   }
   //Loops and saves the intial distance, color and id of each poly
   function fillPoly() {
     let amount = 109;
     for (let i = 1; i < amount; i++) {
-      let poly: IdArr = { id: "", distanceToMouse: 0, color: [0, 0, 0] };
+      let poly: IdValue = {
+        id: "",
+        distanceToMouse: 0,
+        color: [0, 0, 0],
+        elCenter: new DOMRect(),
+      };
       let el = document.getElementById(`Vector${i}`);
       if (!el) continue;
       //id name
@@ -44,14 +45,25 @@ function App() {
       poly["distanceToMouse"] = distance;
       //saving intial color and change to hsl
       let hslColor = rgbToHsl(window.getComputedStyle(el).fill);
-      poly["color"] = hslColor;
+      el.style.stroke = "black";
+      poly["color"] = hslColor ?? [0, 0, 0];
+      //Saving center
+      poly["elCenter"] = elXY;
       //push to array
       otherPolyRef.current.push(poly);
     }
   }
+
+  function updateCenter() {
+    for (const i of otherPolyRef.current) {
+      let elXY = document.getElementById(i.id)?.getBoundingClientRect();
+      if (!elXY) return;
+      i.elCenter = elXY;
+    }
+  }
   //updates distance to mouse
-  function updateDistances(i: IdArr) {
-    let elXY = document.getElementById(i.id)?.getBoundingClientRect();
+  function updateDistances(i: IdValue) {
+    let elXY = i.elCenter;
     if (!elXY) return;
     const centerX = elXY.x + elXY.width / 2;
     const centerY = elXY.y + elXY.height / 2;
@@ -63,8 +75,10 @@ function App() {
 
   useEffect(() => {
     window.addEventListener("mousemove", mouseMove);
+    window.addEventListener("resize", updateCenter);
     return () => {
       window.removeEventListener("mousemove", mouseMove);
+      window.removeEventListener("resize", updateCenter);
     };
   }, []);
 

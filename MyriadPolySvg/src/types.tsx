@@ -1,5 +1,6 @@
-export type IdArr = {
+export type IdValue = {
   id: string;
   distanceToMouse: number;
-  color: number[] | null;
+  color: number[];
+  elCenter: DOMRect;
 };
