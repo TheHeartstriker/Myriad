@@ -7,12 +7,14 @@ export function createDrawArr(testVec: LifePoint[] = []) {
   let outlinePoints: Vector[] = [];
   let leftPoints: Vector[] = [];
   let rightPoints: Vector[] = [];
+  let logTest: LifePoint[] = [];
 
   // Not enough points to form a shape
   if (testVec.length < 2) return { outlinePoints: [] };
 
-  // For each circle (except the last one)
-  for (let i = 0; i < testVec.length - 1; i++) {
+  // Loop over all points excepts the first aka tail point and the last two points of the head area
+  for (let i = 1; i < testVec.length - 2; i++) {
+    logTest.push(testVec[i]);
     const current = testVec[i];
     const next = testVec[i + 1];
 
@@ -37,7 +39,7 @@ export function createDrawArr(testVec: LifePoint[] = []) {
     let rightPoint: Vector | undefined;
     let tailPoints: Vector[] | undefined;
     let headPoints: Vector[] | undefined;
-    if (i !== 0 && i !== testVec.length - 2) {
+    if (i !== 1 && i !== testVec.length - 3) {
       //Implementing the above formula
       const leftT = 0.25;
       const leftTheta = leftT * 2 * Math.PI;
@@ -66,12 +68,12 @@ export function createDrawArr(testVec: LifePoint[] = []) {
             current.radius
       );
     }
-    if (i === 0) {
+    if (i === 1) {
       tailPoints = headOrTail(6, perpVec, directionVec, current, "tail");
       tailPoints?.forEach((p) => rightPoints.push(p));
     }
-    if (i === testVec.length - 2) {
-      headPoints = headOrTail(6, perpVec, directionVec, next, "head");
+    if (i === testVec.length - 3) {
+      headPoints = headOrTail(6, perpVec, directionVec, current, "head");
       headPoints?.forEach((p) => leftPoints.push(p));
     }
 

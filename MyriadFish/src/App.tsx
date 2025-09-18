@@ -18,7 +18,6 @@ const loopLength = 30;
 
 for (let i = 0; i < loopLength; i++) {
   const percent = (i / (loopLength - 1)) * 100;
-  let current = startPoint;
   if (percent <= 20) {
     startPoint += 1;
   } else if (percent > 20 && percent <= 40) {
@@ -30,6 +29,8 @@ for (let i = 0; i < loopLength; i++) {
   }
   conShape.push(startPoint);
 }
+conShape.push(0, 0);
+conShape.unshift(0);
 
 function App() {
   const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
@@ -96,20 +97,20 @@ function App() {
     testVec.current[length].position.x = mousePos.current.x;
     testVec.current[length].position.y = mousePos.current.y;
 
-    // Backward pass (tail to head)
-    for (let i = length - 1; i >= 0; i--) {
+    // Forward pass (tail to head)
+    for (let i = 0; i < length; i++) {
       constrainCheck(i);
     }
-    // Forward pass (head to tail)
-    for (let i = 0; i < length; i++) {
+    // Backward pass (head to tail)
+    for (let i = length - 1; i >= 0; i--) {
       constrainCheck(i);
     }
 
     let { outlinePoints } = createDrawArr(testVec.current);
     drawVec.current = outlinePoints ?? [];
-    drawRadiusOutline(testVec.current, ctx);
-    drawPoints(drawVec.current, ctx);
-    // drawFullForm(drawVec.current, ctx);
+    //drawRadiusOutline(testVec.current, ctx);
+    //drawPoints(drawVec.current, ctx);
+    drawFullForm(drawVec.current, ctx);
   }
 
   useEffect(() => {

@@ -4,7 +4,7 @@ export function drawOutline(points: Vector[], ctx: CanvasRenderingContext2D) {
   if (!ctx || points.length < 2) return;
   ctx.beginPath();
   ctx.moveTo(points[0].x, points[0].y);
-  for (let i = 1; i < points.length; i++) {
+  for (let i = 0; i < points.length - 2; i++) {
     ctx.lineTo(points[i].x, points[i].y);
   }
   ctx.closePath();
@@ -26,8 +26,11 @@ export function drawRadiusOutline(
   ctx: CanvasRenderingContext2D
 ) {
   if (!ctx) return;
-  for (let i = mainP.length - 1; i >= 0; i--) {
+  for (let i = 0; i < mainP.length; i++) {
     ctx.strokeStyle = "white";
+    if (i === mainP.length - 1) {
+      ctx.strokeStyle = "blue";
+    }
     ctx.beginPath();
     ctx.arc(
       mainP[i].position.x,
