@@ -4,7 +4,7 @@ function MultCircle() {
   const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const points = useRef<number[][]>([]);
-  const multValue = useRef<number>(2);
+  const multValue = useRef<number>(65);
   const frameId = useRef<number | null>(null);
   const colorRange = useRef<{ min: number; max: number }>({
     min: 190,

@@ -15,8 +15,8 @@ function App() {
 
     for (const i of otherPolyRef.current) {
       updateDistances(i);
-      //darkenDistance(i);
-      darkenColorDistance(i, 1000, [0.2, 0.8]);
+      darkenDistance(i, 1000, [0.3, 0.7]);
+      //darkenColorDistance(i, 1000, [0.2, 0.8]);
     }
   }
   //Loops and saves the intial distance, color and id of each poly
@@ -45,7 +45,7 @@ function App() {
       poly["distanceToMouse"] = distance;
       //saving intial color and change to hsl
       let hslColor = rgbToHsl(window.getComputedStyle(el).fill);
-      el.style.stroke = "black";
+      // el.style.stroke = "black";
       poly["color"] = hslColor ?? [0, 0, 0];
       //Saving center
       poly["elCenter"] = elXY;

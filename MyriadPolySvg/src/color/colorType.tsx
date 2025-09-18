@@ -19,7 +19,7 @@ export function darkenDistance(
   const lightness = Math.round(originalLightness * norm);
   // Apply new color
   el.style.fill = `hsl(0, 0%, ${lightness}%)`;
-  // el.style.stroke = `hsl(0, 0%, ${lightness}%)`;
+  el.style.stroke = `hsl(0, 0%, ${lightness}%)`;
   el.style.transition = "fill 0.3s linear, stroke 0.3s linear";
 }
 
