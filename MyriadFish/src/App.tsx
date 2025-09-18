@@ -13,24 +13,24 @@ import {
 const disConstraint = 10;
 
 let conShape: number[] = [];
-let startPoint = 7.5;
+let startPoint = 15;
 const loopLength = 30;
 
 for (let i = 0; i < loopLength; i++) {
   const percent = (i / (loopLength - 1)) * 100;
   if (percent <= 20) {
-    startPoint += 1;
-  } else if (percent > 20 && percent <= 40) {
     startPoint += 1.5;
+  } else if (percent > 20 && percent <= 40) {
+    startPoint += 2;
   } else if (percent > 40 && percent <= 80) {
     startPoint += 0.5;
   } else {
-    startPoint -= 1;
+    startPoint -= 1.5;
   }
   conShape.push(startPoint);
 }
 conShape.push(0, 0);
-conShape.unshift(0);
+conShape.unshift(0, 0);
 
 function App() {
   const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
@@ -106,11 +106,11 @@ function App() {
       constrainCheck(i);
     }
 
-    let { outlinePoints } = createDrawArr(testVec.current);
+    let { outlinePoints, eyes } = createDrawArr(testVec.current);
     drawVec.current = outlinePoints ?? [];
     //drawRadiusOutline(testVec.current, ctx);
     //drawPoints(drawVec.current, ctx);
-    drawFullForm(drawVec.current, ctx);
+    drawFullForm(drawVec.current, eyes, ctx);
   }
 
   useEffect(() => {
