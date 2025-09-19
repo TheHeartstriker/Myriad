@@ -9,16 +9,24 @@ export function createDrawArr(testVec: LifePoint[] = []) {
   let eyes: Vector[] = [];
   let leftPoints: Vector[] = [];
   let rightPoints: Vector[] = [];
-  let logTest: LifePoint[] = [];
 
   // Not enough points to form a shape
   if (testVec.length < 2) return { outlinePoints: [], eyes: [] };
 
   // Loop over all points excepts the first aka tail point and the last two points of the head area
-  for (let i = 2; i < testVec.length - 2; i++) {
-    logTest.push(testVec[i]);
+  for (let i = 8; i < testVec.length - 2; i++) {
     const current = testVec[i];
     const next = testVec[i + 1];
+    if (i >= 2) {
+      angleConstraint(
+        90,
+        135,
+        testVec[i - 2].position,
+        testVec[i - 1].position,
+        current.position,
+        0.5
+      );
+    }
 
     // At first we calculate the next x and y from the current and next point
     // Which then represents the step that next would take to get to current
@@ -37,18 +45,11 @@ export function createDrawArr(testVec: LifePoint[] = []) {
     // We defined what direction that is above so we can plug that in to this new formula to get the new t = 0 point
     // P=center+r(cos(2πt)⋅directionVec+sin(2πt)⋅perpVec)
 
-    angleContraint(
-      90,
-      testVec[i - 2].position,
-      testVec[i - 1].position,
-      current.position
-    );
-
     let leftPoint: Vector | undefined;
     let rightPoint: Vector | undefined;
     let tailPoints: Vector[] | undefined;
     let headPoints: Vector[] | undefined;
-    if (i !== 2 && i !== testVec.length - 3) {
+    if (i !== 8 && i !== testVec.length - 3) {
       //Implementing the above formula
       const leftT = 0.25;
       const leftTheta = leftT * 2 * Math.PI;
@@ -71,7 +72,7 @@ export function createDrawArr(testVec: LifePoint[] = []) {
         current.radius
       );
     }
-    if (i === 2) {
+    if (i === 8) {
       tailPoints = headOrTail(6, perpVec, directionVec, current, "tail");
       tailPoints?.forEach((p) => rightPoints.push(p));
     }
@@ -151,49 +152,60 @@ function headOrTail(
   return points;
 }
 
-function angleContraint(angle: number, a: Vector, b: Vector, c: Vector) {
+function angleConstraint(
+  angle: number, // Minimum angle threshold (e.g., 90 degrees)
+  scaleTo: number, // Target angle to scale to (e.g., 100 degrees)
+  a: Vector,
+  b: Vector,
+  c: Vector,
+  lerpFactor: number = 0.1 // Interpolation factor for smooth movement (0 to 1)
+) {
+  // Compute vectors ab and cb
   const ab = new Vector(a.x - b.x, a.y - b.y);
   const cb = new Vector(c.x - b.x, c.y - b.y);
 
+  // Compute dot product and magnitudes
   const dot = ab.x * cb.x + ab.y * cb.y;
   const magAB = Math.sqrt(ab.x * ab.x + ab.y * ab.y);
   const magCB = Math.sqrt(cb.x * cb.x + cb.y * cb.y);
 
-  // Clamp value to avoid NaN due to floating point errors
+  // Avoid division by zero
+  if (magAB === 0 || magCB === 0) return;
+
+  // Compute current angle
   const cosTheta = Math.max(-1, Math.min(1, dot / (magAB * magCB)));
   const thetaRad = Math.acos(cosTheta);
   const thetaDeg = (thetaRad * 180) / Math.PI;
 
-  //The angles are getting too close together we need to move c
+  // Check if angle is too small
   if (thetaDeg < angle) {
-    console.log(
-      `BEFORE adjustment: c = (${c.x.toFixed(2)}, ${c.y.toFixed(2)})`
-    );
-    // Convert minimum angle to radians
-    const minAngleRad = (angle * Math.PI) / 180;
+    // Convert target angle to radians
+    const targetAngleRad = (scaleTo * Math.PI) / 180;
 
-    // Normalize the vectors
+    // Normalize ab
     const abNorm = ab.normalize();
 
-    // Calculate the rotation matrix for the minimum angle
-    const cosMinAngle = Math.cos(minAngleRad);
-    const sinMinAngle = Math.sin(minAngleRad);
-
-    // Create a new vector that's rotated by the minimum angle from ab
-    // Determining which direction to rotate based on the current orientation
+    // Determine rotation direction
     const crossProduct = ab.x * cb.y - ab.y * cb.x;
     const direction = crossProduct < 0 ? -1 : 1;
 
-    // Create the new direction for c from b
+    // Compute new direction for cb by rotating abNorm
+    const cosTargetAngle = Math.cos(targetAngleRad);
+    const sinTargetAngle = Math.sin(targetAngleRad);
     const newCBx =
-      magCB * (abNorm.x * cosMinAngle - direction * abNorm.y * sinMinAngle);
+      abNorm.x * cosTargetAngle - direction * abNorm.y * sinTargetAngle;
     const newCBy =
-      magCB * (abNorm.y * cosMinAngle + direction * abNorm.x * sinMinAngle);
+      abNorm.y * cosTargetAngle + direction * abNorm.x * sinTargetAngle;
 
-    // Update c's position based on b and the new direction
-    c.x = b.x + newCBx;
-    c.y = b.y + newCBy;
+    // Scale to original cb magnitude
+    const newCB = new Vector(newCBx, newCBy).normalize().scale(magCB);
 
-    console.log(`AFTER adjustment: c = (${c.x.toFixed(2)}, ${c.y.toFixed(2)})`);
+    // Compute target position for c
+    const targetCx = b.x + newCB.x;
+    const targetCy = b.y + newCB.y;
+
+    // Interpolate toward the target position for smoothness
+    c.x = c.x + (targetCx - c.x) * lerpFactor;
+    c.y = c.y + (targetCy - c.y) * lerpFactor;
   }
 }

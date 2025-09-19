@@ -10,7 +10,7 @@ import {
   drawFullForm,
 } from "./shapes/DrawShapes.ts";
 
-const disConstraint = 10;
+const disConstraint = 30;
 
 let conShape: number[] = [];
 let startPoint = 15;
@@ -30,7 +30,7 @@ for (let i = 0; i < loopLength; i++) {
   conShape.push(startPoint);
 }
 conShape.push(0, 0);
-conShape.unshift(0, 0);
+conShape.unshift(0, 0, 0, 0, 0, 0, 0, 0);
 
 function App() {
   const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);

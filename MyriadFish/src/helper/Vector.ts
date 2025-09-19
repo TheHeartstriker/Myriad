@@ -31,6 +31,10 @@ export class Vector {
     return this;
   }
 
+  scale(scalar: number): Vector {
+    return new Vector(this.x * scalar, this.y * scalar);
+  }
+
   mag(): number {
     return Math.sqrt(this.x * this.x + this.y * this.y);
   }
