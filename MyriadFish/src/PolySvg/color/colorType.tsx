@@ -1,4 +1,4 @@
-import type { IdValue } from "../types";
+import type { IdValue } from "../PolySvg/types";
 //
 //Color changing functions based on params mainly distance
 //

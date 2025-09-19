@@ -1,4 +1,4 @@
-import { Vector } from "../helper/Vector";
+import { Vector } from "../fish/helper/Vector";
 import type { LifePoint } from "../types/Types";
 import { parametricEquation } from "./Math";
 

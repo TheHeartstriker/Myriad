@@ -1,4 +1,4 @@
-import { Vector } from "../helper/Vector";
+import { Vector } from "../fish/helper/Vector";
 import type { LifePoint } from "../types/Types";
 export function drawOutline(points: Vector[], ctx: CanvasRenderingContext2D) {
   if (!ctx || points.length < 2) return;

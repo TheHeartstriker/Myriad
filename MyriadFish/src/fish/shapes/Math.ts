@@ -1,4 +1,4 @@
-import { Vector } from "../helper/Vector";
+import { Vector } from "../fish/helper/Vector";
 
 export function parametricEquation(
   position: Vector,

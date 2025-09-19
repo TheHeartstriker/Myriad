@@ -1,9 +1,9 @@
 import Poly from "./assets/poly.tsx";
 import "./App.css";
 import { useEffect, useRef } from "react";
-import type { IdValue } from "./types";
-import { darkenDistance, darkenColorDistance } from "./color/colorType.tsx";
-import { rgbToHsl } from "./color/colorChange.tsx";
+import type { IdValue } from "./types.tsx";
+import { darkenDistance, darkenColorDistance } from "../color/colorType.tsx";
+import { rgbToHsl } from "../color/colorChange.tsx";
 
 function App() {
   const mouseRef = useRef({ x: 0, y: 0 });
