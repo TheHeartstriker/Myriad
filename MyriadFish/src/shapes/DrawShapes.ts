@@ -1,0 +1,74 @@
+import { Vector } from "../helper/Vector";
+import type { LifePoint } from "../types/Types";
+export function drawOutline(points: Vector[], ctx: CanvasRenderingContext2D) {
+  if (!ctx || points.length < 2) return;
+  ctx.beginPath();
+  ctx.moveTo(points[0].x, points[0].y);
+  for (let i = 0; i < points.length - 2; i++) {
+    ctx.lineTo(points[i].x, points[i].y);
+  }
+  ctx.closePath();
+  ctx.stroke();
+}
+
+export function drawPoints(points: Vector[], ctx: CanvasRenderingContext2D) {
+  if (!ctx || points.length < 1) return;
+  ctx.fillStyle = "red";
+  for (let i = points.length - 1; i >= 0; i--) {
+    ctx.beginPath();
+    ctx.arc(points[i].x, points[i].y, 2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+export function drawRadiusOutline(
+  mainP: LifePoint[],
+  ctx: CanvasRenderingContext2D
+) {
+  if (!ctx) return;
+  for (let i = 0; i < mainP.length; i++) {
+    ctx.strokeStyle = "white";
+    if (i === mainP.length - 1) {
+      ctx.strokeStyle = "blue";
+    }
+    ctx.beginPath();
+    ctx.arc(
+      mainP[i].position.x,
+      mainP[i].position.y,
+      mainP[i].radius,
+      0,
+      Math.PI * 2
+    );
+    ctx.stroke();
+  }
+}
+
+export function drawFullForm(
+  form: Vector[],
+  eyes: Vector[] | null,
+  ctx: CanvasRenderingContext2D
+) {
+  if (!ctx || form.length < 2) return;
+  ctx.beginPath();
+  ctx.moveTo(form[0].x, form[0].y);
+  for (let i = form.length - 1; i >= 0; i--) {
+    ctx.lineTo(form[i].x, form[i].y);
+  }
+
+  ctx.closePath();
+  ctx.fillStyle = `rgb(53, 125, 165)`; // Fill with DodgerBlue color
+  ctx.fill();
+  ctx.strokeStyle = "white"; // Draw white outline
+  ctx.lineWidth = 2; // Optional: make the outline thicker
+  ctx.stroke();
+
+  // Draw eyes
+  if (eyes !== null) {
+    eyes.forEach((eye) => {
+      ctx.beginPath();
+      ctx.arc(eye.x, eye.y, 5, 0, Math.PI * 2);
+      ctx.fillStyle = "white";
+      ctx.fill();
+    });
+  }
+}
