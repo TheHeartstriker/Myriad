@@ -1,16 +1,19 @@
 import { useEffect, useState, useRef } from "react";
 import type { GridEl } from "./types";
-import { drawSquare, angleDraw } from "./draw";
+import { drawSquare, angleDraw, drawCurve, colorPick } from "./draw";
+import { perlinAngle, perlin2D } from "./angleMath";
 
 function FlowField() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
   const animationIdRef = useRef<number | null>(null);
-  const colorValues = { h: 200, s: 100, l: 50 };
+  const colorValues = { h: 0, s: 100, l: 50 };
   const gridRef = useRef<GridEl[][]>([]);
   const rowRef = useRef(0);
   const colRef = useRef(0);
-  const Pix_size = 25;
+  const Pix_size = 20;
+  //Lower the more curve and space for them to form
+  //Higher the less chance for curves to form
 
   const leftRight = useRef({
     leftX: window.innerWidth * -0.25,
@@ -42,88 +45,9 @@ function FlowField() {
 
   function render() {
     if (!ctx || !gridRef.current.length) return;
-    const grid = gridRef.current;
-    for (let i = 0; i < grid.length; i++) {
-      for (let j = 0; j < grid[i].length; j++) {
-        const cell = grid[i][j];
-        //drawSquare(cell.x, cell.y, ctx, Pix_size);
-        //angleDraw(cell, ctx, Pix_size);
-        drawCurve();
-      }
+    for (let i = 0; i < 50000; i++) {
+      drawCurve(ctx, gridRef, leftRight, topBottom, colorValues, Pix_size);
     }
-  }
-
-  function drawCurve() {
-    if (!ctx || !gridRef.current.length) return;
-
-    // Starting point
-    let x =
-      leftRight.current.leftX +
-      Math.random() * (leftRight.current.rightX - leftRight.current.leftX);
-    let y =
-      topBottom.current.topY +
-      Math.random() * (topBottom.current.bottomY - topBottom.current.topY);
-
-    const num_steps = 100;
-    const step_length = Math.floor(Math.random() * 10);
-    const grid = gridRef.current;
-
-    let color = colorPick(100, 900, step_length * num_steps);
-
-    // Begin curve
-    ctx.beginPath();
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 1;
-    ctx.moveTo(x, y);
-
-    for (let i = 0; i < num_steps; i++) {
-      // Draw vertex (line to current position)
-      ctx.lineTo(x, y);
-
-      // Calculate grid indices allowing us to get the GridEl of the current position
-      const column_index = Math.floor((x - leftRight.current.leftX) / Pix_size);
-      const row_index = Math.floor((y - topBottom.current.topY) / Pix_size);
-
-      // Check bounds
-      if (
-        column_index < 0 ||
-        column_index >= grid.length ||
-        row_index < 0 ||
-        row_index >= grid[0].length
-      ) {
-        break;
-      }
-
-      // Get angle from grid
-      // Calculate step based on angle and apply to its current position
-      const grid_angle = grid[column_index][row_index].angle;
-      const x_step = step_length * Math.cos(grid_angle);
-      const y_step = step_length * Math.sin(grid_angle);
-
-      // Update position
-      x = x + x_step;
-      y = y + y_step;
-    }
-
-    // End curve
-    ctx.stroke();
-  }
-
-  function colorPick(
-    min_length: number,
-    max_length: number,
-    current_length: number
-  ) {
-    // Normalize current_length to a value between 0 and 1
-    const normalized = Math.max(
-      0,
-      Math.min(1, (current_length - min_length) / (max_length - min_length))
-    );
-
-    // Use normalized value to adjust the original lightness
-    const adjustedLightness = colorValues.l * normalized;
-
-    return `hsl(${colorValues.h}, ${colorValues.s}%, ${adjustedLightness}%)`;
   }
 
   function create2DArray(
@@ -133,14 +57,13 @@ function FlowField() {
     topY: number
   ): GridEl[][] {
     let arr = new Array(Rows);
+    //Row
+    const seed = Math.random() * 1000;
+    const scale = 0.01; // Try 0.05 to 0.2 for different smoothness
     for (let i = 0; i < arr.length; i++) {
       arr[i] = new Array(Cols);
-      let test = 1;
-      if (i > Rows / 2) {
-        test = -1;
-      }
       for (let j = 0; j < arr[i].length; j++) {
-        const angle = (j / Rows) * Math.PI * test;
+        const angle = perlin2D(i * scale, j * scale) * Math.PI * 2;
         arr[i][j] = {
           angle: angle,
           x: leftX + i * Pix_size,
