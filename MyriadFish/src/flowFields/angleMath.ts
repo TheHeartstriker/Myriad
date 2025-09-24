@@ -12,29 +12,6 @@ function fade(t: number) {
 function lerp(a: number, b: number, t: number) {
   return a + t * (b - a);
 }
-function grad(hash: number, x: number) {
-  return (hash & 1) === 0 ? x : -x;
-}
-export function perlin1D(x: number): number {
-  const xi = Math.floor(x) & 255;
-  const xf = x - Math.floor(x);
-  const u = fade(xf);
-
-  const a = permutation[xi];
-  const b = permutation[xi + 1];
-
-  return lerp(grad(a, xf), grad(b, xf - 1), u);
-}
-
-// Given a radian, return a new radian offset by Perlin noise
-export function perlinAngle(angle: number, seed = 0): number {
-  // You can scale the input to control the "frequency" of the noise
-  const scale = 1.0;
-  // The output of perlin1D is in [-1, 1], so scale the offset as needed
-  const noise = perlin1D(angle * scale + seed);
-  const offset = noise * 0.5; // 0.5 radian max offset (adjust as needed)
-  return angle + offset;
-}
 
 function grad2d(hash: number, x: number, y: number) {
   // 8 possible directions

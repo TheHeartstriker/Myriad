@@ -7,7 +7,7 @@ export function drawSquare(
   Pix_size: number
 ) {
   if (!ctx) return;
-  ctx.strokeStyle = "rgba(255, 0, 0, 0.5)"; // Semi-transparent white
+  ctx.strokeStyle = "rgba(174, 0, 255, 0.5)"; // Semi-transparent white
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.rect(x, y, Pix_size, Pix_size);
@@ -69,13 +69,19 @@ export function drawCurve(
   const step_length = Math.floor(Math.random() * 5);
   const grid = gridRef.current;
 
-  let color = colorPick(100, 900, step_length * num_steps, colorValues);
+  let Lencolor = lengthColorPick(
+    100,
+    900,
+    step_length * num_steps,
+    colorValues
+  );
 
   // Begin curve
   ctx.beginPath();
-  ctx.strokeStyle = color;
   ctx.lineWidth = 1;
+  //ctx.strokeStyle = Lencolor;
   ctx.moveTo(x, y);
+  let previousColor = { h: 0, s: 0, l: 0 };
 
   for (let i = 0; i < num_steps; i++) {
     // Draw vertex (line to current position)
@@ -101,7 +107,14 @@ export function drawCurve(
     const x_step = step_length * Math.cos(grid_angle);
     const y_step = step_length * Math.sin(grid_angle);
 
-    // Update position
+    previousColor = interpolateColor(
+      previousColor,
+      grid[column_index][row_index].color,
+      3
+    );
+    let color = `hsl(${previousColor.h}, ${previousColor.s}%, ${previousColor.l}%)`;
+    ctx.strokeStyle = color;
+    //Update position
     x = x + x_step;
     y = y + y_step;
   }
@@ -110,7 +123,7 @@ export function drawCurve(
   ctx.stroke();
 }
 
-export function colorPick(
+export function lengthColorPick(
   min_length: number,
   max_length: number,
   current_length: number,
@@ -126,4 +139,32 @@ export function colorPick(
   const adjustedLightness = colorValues.l * normalized;
 
   return `hsl(${colorValues.h}, ${colorValues.s}%, ${adjustedLightness}%)`;
+}
+
+export function getSectorColor(
+  sectorSize: number,
+  row: number,
+  colorValues: any
+) {
+  let currentSector = Math.floor(row / sectorSize);
+  return colorValues[`color${currentSector + 1}`];
+}
+
+function interpolateColor(
+  currentColor: { h: number; s: number; l: number },
+  targetColor: { h: number; s: number; l: number },
+  step: number = 1
+) {
+  // Helper to move a value toward a target by at most 'step'
+  function approach(current: number, target: number, step: number) {
+    if (current < target) return Math.min(current + step, target);
+    if (current > target) return Math.max(current - step, target);
+    return current;
+  }
+
+  return {
+    h: approach(currentColor.h, targetColor.h, step),
+    s: approach(currentColor.s, targetColor.s, step),
+    l: approach(currentColor.l, targetColor.l, step),
+  };
 }

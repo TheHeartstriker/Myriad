@@ -1,17 +1,24 @@
 import { useEffect, useState, useRef } from "react";
 import type { GridEl } from "./types";
-import { drawSquare, angleDraw, drawCurve, colorPick } from "./draw";
-import { perlinAngle, perlin2D } from "./angleMath";
+import { drawSquare, angleDraw, drawCurve, getSectorColor } from "./draw";
+import { perlin2D } from "./angleMath";
 
 function FlowField() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
   const animationIdRef = useRef<number | null>(null);
-  const colorValues = { h: 0, s: 100, l: 50 };
+  const colorValues = { h: 230, s: 90, l: 65 };
+  const colorValues2 = {
+    color1: { h: 45, s: 80, l: 65 }, // Pure gold (lightest)
+    color2: { h: 42, s: 75, l: 55 }, // Light gold
+    color3: { h: 40, s: 70, l: 45 }, // Medium gold
+    color4: { h: 38, s: 65, l: 35 }, // Dark gold
+    color5: { h: 35, s: 60, l: 25 }, // Darkest gold/tan
+  };
   const gridRef = useRef<GridEl[][]>([]);
   const rowRef = useRef(0);
   const colRef = useRef(0);
-  const Pix_size = 20;
+  const Pix_size = 25;
   //Lower the more curve and space for them to form
   //Higher the less chance for curves to form
 
@@ -48,7 +55,21 @@ function FlowField() {
     for (let i = 0; i < 50000; i++) {
       drawCurve(ctx, gridRef, leftRight, topBottom, colorValues, Pix_size);
     }
+    // for (let i = 0; i < rowRef.current; i++) {
+    //   for (let j = 0; j < colRef.current; j++) {
+    //     drawSquare(
+    //       gridRef.current[i][j].x,
+    //       gridRef.current[i][j].y,
+    //       ctx,
+    //       Pix_size
+    //     );
+    //     //angleDraw(gridRef.current[i][j], ctx, Pix_size);
+    //   }
+    // }
   }
+
+  const seed = Math.random() * 1000;
+  const scale = 0.01; // Try 0.05 to 0.2 for different smoothness
 
   function create2DArray(
     Rows: number,
@@ -56,18 +77,21 @@ function FlowField() {
     leftX: number,
     topY: number
   ): GridEl[][] {
-    let arr = new Array(Rows);
-    //Row
-    const seed = Math.random() * 1000;
-    const scale = 0.01; // Try 0.05 to 0.2 for different smoothness
+    let arr = new Array(Rows); //Create array of empty rows
+
+    let sectorSize = Rows / 5;
     for (let i = 0; i < arr.length; i++) {
+      //Index into row and create empty columns
       arr[i] = new Array(Cols);
+      let color = getSectorColor(sectorSize, i, colorValues2);
+      //Iterate over the empty columns in the row
       for (let j = 0; j < arr[i].length; j++) {
         const angle = perlin2D(i * scale, j * scale) * Math.PI * 2;
         arr[i][j] = {
           angle: angle,
           x: leftX + i * Pix_size,
           y: topY + j * Pix_size,
+          color: color,
         };
       }
     }
