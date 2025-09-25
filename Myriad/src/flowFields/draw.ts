@@ -53,7 +53,8 @@ export function drawCurve(
   leftRight: React.RefObject<{ leftX: number; rightX: number }>,
   topBottom: React.RefObject<{ topY: number; bottomY: number }>,
   colorValues: { h: number; s: number; l: number },
-  Pix_size: number
+  Pix_size: number,
+  lenColor: boolean = true
 ) {
   if (!ctx || !gridRef.current.length) return;
 
@@ -66,20 +67,24 @@ export function drawCurve(
     Math.random() * (topBottom.current.bottomY - topBottom.current.topY);
 
   const num_steps = 100;
-  const step_length = Math.floor(Math.random() * 5);
+  const max_step_length = 5;
+  const step_length = Math.floor(Math.random() * max_step_length);
   const grid = gridRef.current;
 
-  let Lencolor = lengthColorPick(
-    100,
-    900,
-    step_length * num_steps,
-    colorValues
-  );
+  if (lenColor) {
+    let Lencolor = lengthColorPick(
+      num_steps,
+      max_step_length * num_steps,
+      step_length * num_steps,
+      colorValues,
+      1.5
+    );
+    ctx.strokeStyle = `hsl(${Lencolor.h}, ${Lencolor.s}%, ${Lencolor.l}%)`;
+  }
 
   // Begin curve
   ctx.beginPath();
   ctx.lineWidth = 1;
-  //ctx.strokeStyle = Lencolor;
   ctx.moveTo(x, y);
   let previousColor = { h: 0, s: 0, l: 0 };
 
@@ -106,14 +111,15 @@ export function drawCurve(
     const grid_angle = grid[column_index][row_index].angle;
     const x_step = step_length * Math.cos(grid_angle);
     const y_step = step_length * Math.sin(grid_angle);
-
-    previousColor = interpolateColor(
-      previousColor,
-      grid[column_index][row_index].color,
-      3
-    );
-    let color = `hsl(${previousColor.h}, ${previousColor.s}%, ${previousColor.l}%)`;
-    ctx.strokeStyle = color;
+    if (!lenColor) {
+      previousColor = interpolateColor(
+        previousColor,
+        grid[column_index][row_index].color,
+        3
+      );
+      let color = `hsl(${previousColor.h}, ${previousColor.s}%, ${previousColor.l}%)`;
+      ctx.strokeStyle = color;
+    }
     //Update position
     x = x + x_step;
     y = y + y_step;
@@ -127,18 +133,24 @@ export function lengthColorPick(
   min_length: number,
   max_length: number,
   current_length: number,
-  colorValues: { h: number; s: number; l: number }
+  colorValues: { h: number; s: number; l: number },
+  intensity: number = 0.6
 ) {
   // Normalize current_length to a value between 0 and 1
-  const normalized = Math.max(
-    0,
-    Math.min(1, (current_length - min_length) / (max_length - min_length))
-  );
+  const normalized =
+    Math.max(
+      0,
+      Math.min(1, (current_length - min_length) / (max_length - min_length))
+    ) * intensity;
 
   // Use normalized value to adjust the original lightness
   const adjustedLightness = colorValues.l * normalized;
 
-  return `hsl(${colorValues.h}, ${colorValues.s}%, ${adjustedLightness}%)`;
+  return {
+    h: colorValues.h,
+    s: colorValues.s,
+    l: adjustedLightness,
+  };
 }
 
 export function getSectorColor(
