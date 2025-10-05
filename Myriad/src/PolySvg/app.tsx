@@ -1,9 +1,10 @@
-import Poly from "./assets/poly.tsx";
-import "./App.css";
+import Triangles from "../../public/Triangles.tsx";
+import Triangles2 from "../../public/Triangles2.tsx";
+import Poly from "../../public/Poly.tsx";
 import { useEffect, useRef } from "react";
 import type { IdValue } from "./types.tsx";
-import { darkenDistance, darkenColorDistance } from "../color/colorType.tsx";
-import { rgbToHsl } from "../color/colorChange.tsx";
+import { darkenDistance, darkenColorDistance } from "./color/colorType.tsx";
+import { rgbToHsl } from "./color/colorChange.tsx";
 
 function App() {
   const mouseRef = useRef({ x: 0, y: 0 });
@@ -15,13 +16,12 @@ function App() {
 
     for (const i of otherPolyRef.current) {
       updateDistances(i);
-      darkenDistance(i, 1000, [0.3, 0.7]);
-      //darkenColorDistance(i, 1000, [0.2, 0.8]);
+      darkenColorDistance(i, 1500, [0.7, 0.99], false);
     }
   }
   //Loops and saves the intial distance, color and id of each poly
   function fillPoly() {
-    let amount = 109;
+    let amount = 595;
     for (let i = 1; i < amount; i++) {
       let poly: IdValue = {
         id: "",
@@ -29,10 +29,10 @@ function App() {
         color: [0, 0, 0],
         elCenter: new DOMRect(),
       };
-      let el = document.getElementById(`Vector${i}`);
+      let el = document.getElementById(`Vector_${i}`);
       if (!el) continue;
       //id name
-      poly["id"] = `Vector${i}`;
+      poly["id"] = `Vector_${i}`;
       //distance
       let elXY = el.getBoundingClientRect();
       if (!elXY) continue;
@@ -45,7 +45,6 @@ function App() {
       poly["distanceToMouse"] = distance;
       //saving intial color and change to hsl
       let hslColor = rgbToHsl(window.getComputedStyle(el).fill);
-      // el.style.stroke = "black";
       poly["color"] = hslColor ?? [0, 0, 0];
       //Saving center
       poly["elCenter"] = elXY;
@@ -90,7 +89,8 @@ function App() {
 
   return (
     <div className="poly-container">
-      <Poly />
+      <Triangles2 />
+      {/* <Poly /> */}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import type { IdValue } from "../PolySvg/types";
+import type { IdValue } from "../types";
 //
 //Color changing functions based on params mainly distance
 //
@@ -27,22 +27,24 @@ export function darkenDistance(
 export function darkenColorDistance(
   i: IdValue,
   distanceMax = 1000,
-  intensity = [0.01, 0.99]
+  intensity = [0.01, 0.99],
+  dark = false
 ) {
   let el = document.getElementById(i.id);
   if (!el) return;
   let distance = i.distanceToMouse;
   // Normalize distance
-  const norm = intensity[0] + intensity[1] * (distance / distanceMax);
-  const lightness = Math.round(i.color[2] * norm);
+  let norm = intensity[0] + intensity[1] * (distance / distanceMax);
+  norm = Math.min(norm, 1);
+  let lightness;
+  if (dark) {
+    lightness = Math.round(i.color[2] * norm);
+  } else {
+    lightness = Math.round(i.color[2] / norm);
+  }
 
-  // Glow strength: closer = stronger
-  const glowStrength = Math.round(16 * (1 - distance / distanceMax)); // 0-16px
-  const glowColor = `hsl(${i.color[0]}, ${i.color[1]}%, ${lightness + 20}%)`;
-
-  el.style.fill = `hsl(${i.color[0]}, ${i.color[1]}%, ${lightness}%)`;
   el.style.stroke = `hsl(${i.color[0]}, ${i.color[1]}%, ${lightness}%)`;
-  el.style.transition =
-    "fill 0.3s linear, stroke 0.3s linear, filter 0.3s linear";
-  el.style.filter = `drop-shadow(0 0 ${glowStrength}px ${glowColor})`;
+  el.style.fill = `hsl(${i.color[0]}, ${i.color[1]}%, ${lightness}%)`;
+
+  el.style.transition = "fill 0.2s linear, stroke 0.2s linear";
 }

@@ -7,7 +7,8 @@ function FlowField() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
   const animationIdRef = useRef<number | null>(null);
-  const colorValues = { h: 200, s: 0, l: 77 };
+  const colorValues = { h: 0, s: 100, l: 60 };
+  // const colorValues = { h: 240, s: 100, l: 60 };
   const colorValues2 = {
     color1: { h: 0, s: 80, l: 55 }, // Vibrant red
     color2: { h: 20, s: 85, l: 55 }, // Orange-red
@@ -18,7 +19,7 @@ function FlowField() {
   const gridRef = useRef<GridEl[][]>([]);
   const rowRef = useRef(0);
   const colRef = useRef(0);
-  const Pix_size = 15;
+  const Pix_size = 12.5;
   //Lower the more curve and space for them to form
   //Higher the less chance for curves to form
 
@@ -52,7 +53,17 @@ function FlowField() {
 
   function render() {
     if (!ctx || !gridRef.current.length) return;
-    drawCurve(ctx, gridRef, leftRight, topBottom, colorValues, Pix_size, true);
+    for (let i = 0; i < 10; i++) {
+      drawCurve(
+        ctx,
+        gridRef,
+        leftRight,
+        topBottom,
+        colorValues,
+        Pix_size,
+        true
+      );
+    }
 
     // for (let i = 0; i < rowRef.current; i++) {
     //   for (let j = 0; j < colRef.current; j++) {
