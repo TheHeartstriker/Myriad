@@ -1,39 +1,20 @@
 import "./cards.css";
 import { useRef } from "react";
+// import { basicHandleMouseMove } from "./basicGlow";
+import PixelHover from "./pixelHover.tsx";
 
 function Cards() {
   const cardRef = useRef<HTMLElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const card = cardRef.current;
-    if (!card) return;
-
-    const rect = card.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    // Calculate distance from card edges
-    const distanceX = Math.max(0, Math.max(-x, x - rect.width));
-    const distanceY = Math.max(0, Math.max(-y, y - rect.height));
-    const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
-
-    // Calculate opacity based on distance (fade out over 100px)
-    const maxDistance = 100;
-    const opacity = Math.max(0, 1 - distance / maxDistance) / 3;
-
-    card.style.setProperty("--mouse-x", `${x}px`);
-    card.style.setProperty("--mouse-y", `${y}px`);
-    card.style.setProperty("--glow-opacity", opacity.toString());
-  };
-
   return (
     <div
       className="card-container"
       ref={containerRef}
-      onMouseMove={handleMouseMove}
+      //   onMouseMove={(e) => basicHandleMouseMove(e, cardRef)}
     >
       <section className="card" ref={cardRef}>
+        <PixelHover />
         <h2>
           Beneath the <br /> fading glow
         </h2>

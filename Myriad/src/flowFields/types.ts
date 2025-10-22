@@ -1,6 +1,6 @@
 export type GridEl = {
-  angle: number;
-  color: { h: number; s: number; l: number };
+  opacity: number;
+  color: string;
   x: number;
   y: number;
 };

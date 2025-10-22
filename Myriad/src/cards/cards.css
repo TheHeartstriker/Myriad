@@ -34,21 +34,25 @@
 }
 
 .card h2 {
-  font-family: "Inter", sans-serif;
+  font-family: monospace;
   font-size: 2rem;
   margin: var(--space-2);
   font-weight: 500;
   color: var(--color-4);
+  z-index: 5;
 }
 
 .card p {
-  font-family: "Inter", sans-serif;
+  font-family: monospace;
   font-size: 1rem;
   color: white;
   margin: var(--space-2);
+  z-index: 5;
 }
-
-.card::before {
+/*  */
+/* Card1 */
+/*  */
+/* .card::before {
   content: "";
   position: absolute;
   width: 100%;
@@ -64,9 +68,9 @@
   transition: opacity 0.4s ease-out;
   pointer-events: none;
   z-index: 1;
-}
+} */
 
-.card::after {
+/* .card::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -75,4 +79,29 @@
   opacity: 0.1;
   filter: blur(15px);
   pointer-events: none;
+} */
+/*  */
+/* Card2 */
+/*  */
+
+.card::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.001);
+  backdrop-filter: blur(5px);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.card-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50px;
+  pointer-events: none;
+  z-index: 1;
 }
