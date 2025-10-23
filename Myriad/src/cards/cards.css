@@ -83,7 +83,7 @@
 /*  */
 /* Card2 */
 /*  */
-
+/* 
 .card::after {
   content: "";
   position: absolute;
@@ -93,7 +93,10 @@
   backdrop-filter: blur(5px);
   pointer-events: none;
   z-index: 2;
-}
+} */
+/*  */
+/* Card3 */
+/*  */
 
 .card-canvas {
   position: absolute;
@@ -101,7 +104,17 @@
   left: 0;
   width: 100%;
   height: 100%;
-  border-radius: 50px;
-  pointer-events: none;
+  border-radius: 0px;
+  pointer-events: auto;
   z-index: 1;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50px;
+  background: linear-gradient(160deg, var(--color-2) 50%, transparent 100%);
+  pointer-events: none;
+  z-index: 2;
 }

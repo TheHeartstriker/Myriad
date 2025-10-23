@@ -2,6 +2,7 @@ import "./cards.css";
 import { useRef } from "react";
 // import { basicHandleMouseMove } from "./basicGlow";
 import PixelHover from "./pixelHover.tsx";
+import SquareHover from "./squareHover.tsx";
 
 function Cards() {
   const cardRef = useRef<HTMLElement>(null);
@@ -14,7 +15,8 @@ function Cards() {
       //   onMouseMove={(e) => basicHandleMouseMove(e, cardRef)}
     >
       <section className="card" ref={cardRef}>
-        <PixelHover />
+        {/* <PixelHover /> */}
+        <SquareHover />
         <h2>
           Beneath the <br /> fading glow
         </h2>
