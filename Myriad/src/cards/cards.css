@@ -1,0 +1,120 @@
+:root {
+  --color-1: #171c30;
+  --color-2: #242f49;
+  --color-3: #384358;
+  --color-4: #ffa586;
+  --color-5: #b51a2b;
+
+  --mouse-glow: rgba(181, 26, 43, 0.6);
+}
+
+.card-container {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--color-1);
+}
+
+.card {
+  width: 500px;
+  height: 300px;
+  margin: 20px;
+  perspective: 1000px;
+  background-color: var(--color-2);
+  position: relative;
+  border-radius: 50px;
+  overflow: hidden;
+  border: 1px solid var(--color-3);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.card h2 {
+  font-family: monospace;
+  font-size: 2rem;
+  margin: var(--space-2);
+  font-weight: 500;
+  color: var(--color-4);
+  z-index: 5;
+}
+
+.card p {
+  font-family: monospace;
+  font-size: 1rem;
+  color: white;
+  margin: var(--space-2);
+  z-index: 5;
+}
+/*  */
+/* Card1 */
+/*  */
+/* .card::before {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    var(--mouse-glow),
+    transparent 40%
+  );
+
+  opacity: var(--glow-opacity, 0);
+  filter: blur(100px);
+  transition: opacity 0.4s ease-out;
+  pointer-events: none;
+  z-index: 1;
+} */
+
+/* .card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50px;
+  background: linear-gradient(315deg, var(--color-5) 10%, transparent 100%);
+  opacity: 0.1;
+  filter: blur(15px);
+  pointer-events: none;
+} */
+/*  */
+/* Card2 */
+/*  */
+/* 
+.card::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.001);
+  backdrop-filter: blur(5px);
+  pointer-events: none;
+  z-index: 2;
+} */
+/*  */
+/* Card3 */
+/*  */
+
+.card-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 0px;
+  pointer-events: auto;
+  z-index: 1;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50px;
+  background: linear-gradient(160deg, var(--color-2) 50%, transparent 100%);
+  pointer-events: none;
+  z-index: 2;
+}
