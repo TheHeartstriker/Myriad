@@ -1,4 +1,4 @@
-export function basicHandleMouseMove(
+export function simpleHoverMouseMove(
   e: React.MouseEvent<HTMLDivElement>,
   cardRef: React.RefObject<HTMLElement | null>
 ) {
@@ -16,7 +16,7 @@ export function basicHandleMouseMove(
 
   // Calculate opacity based on distance (fade out over 100px)
   const maxDistance = 100;
-  const opacity = Math.max(0, 1 - distance / maxDistance) / 3;
+  const opacity = Math.max(0, 1 - distance / maxDistance) / 2;
 
   card.style.setProperty("--mouse-x", `${x}px`);
   card.style.setProperty("--mouse-y", `${y}px`);

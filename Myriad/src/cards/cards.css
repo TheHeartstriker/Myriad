@@ -5,7 +5,7 @@
   --color-4: #ffa586;
   --color-5: #b51a2b;
 
-  --mouse-glow: rgba(181, 26, 43, 0.6);
+  --mouse-glow: rgba(181, 26, 43, 1);
 }
 
 .card-container {
@@ -52,7 +52,7 @@
 /*  */
 /* Card1 */
 /*  */
-/* .card::before {
+.card1::before {
   content: "";
   position: absolute;
   width: 100%;
@@ -64,13 +64,13 @@
   );
 
   opacity: var(--glow-opacity, 0);
-  filter: blur(100px);
+  filter: blur(50px);
   transition: opacity 0.4s ease-out;
   pointer-events: none;
   z-index: 1;
-} */
+}
 
-/* .card::after {
+.card1::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -79,12 +79,12 @@
   opacity: 0.1;
   filter: blur(15px);
   pointer-events: none;
-} */
+}
 /*  */
 /* Card2 */
 /*  */
-/* 
-.card::after {
+
+.card2::after {
   content: "";
   position: absolute;
   width: 100%;
@@ -93,11 +93,22 @@
   backdrop-filter: blur(5px);
   pointer-events: none;
   z-index: 2;
-} */
+}
 /*  */
 /* Card3 */
 /*  */
 
+.card3::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50px;
+  background: linear-gradient(160deg, var(--color-2) 50%, transparent 100%);
+  pointer-events: none;
+  z-index: 2;
+}
+/*  */
+/* Card 2-3 */
 .card-canvas {
   position: absolute;
   top: 0;
@@ -107,14 +118,4 @@
   border-radius: 0px;
   pointer-events: auto;
   z-index: 1;
-}
-
-.card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 50px;
-  background: linear-gradient(160deg, var(--color-2) 50%, transparent 100%);
-  pointer-events: none;
-  z-index: 2;
 }
