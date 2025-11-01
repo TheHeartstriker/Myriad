@@ -5,7 +5,7 @@
   --color-4: #ffa586;
   --color-5: #b51a2b;
 
-  --mouse-glow: rgba(181, 26, 43, 1);
+  --mouse-glow: rgba(181, 26, 43, 0.5);
 }
 
 .card-container {
@@ -14,13 +14,14 @@
   width: 100%;
   height: 100vh;
   justify-content: center;
+  flex-direction: column;
   align-items: center;
   background-color: var(--color-1);
 }
 
 .card {
-  width: 500px;
-  height: 300px;
+  width: 28vw;
+  height: 28vh;
   margin: 20px;
   perspective: 1000px;
   background-color: var(--color-2);
@@ -90,7 +91,6 @@
   width: 100%;
   height: 100%;
   background: rgba(255, 255, 255, 0.001);
-  backdrop-filter: blur(5px);
   pointer-events: none;
   z-index: 2;
 }
@@ -98,7 +98,7 @@
 /* Card3 */
 /*  */
 
-.card3::before {
+/* .card3::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -106,7 +106,7 @@
   background: linear-gradient(160deg, var(--color-2) 50%, transparent 100%);
   pointer-events: none;
   z-index: 2;
-}
+} */
 /*  */
 /* Card 2-3 */
 .card-canvas {
@@ -118,4 +118,34 @@
   border-radius: 0px;
   pointer-events: auto;
   z-index: 1;
+}
+
+@media (max-width: 1500px) {
+  .card {
+    width: 40vw;
+    height: 30vh;
+  }
+}
+
+@media (max-width: 1000px) {
+  .card {
+    width: 65vw;
+    height: 45vh;
+  }
+}
+
+@media (max-width: 800px) {
+  .card {
+    width: 80vw;
+    height: 45vh;
+  }
+}
+
+@media (max-width: 600px) {
+  .card h2 {
+    font-size: 1.5rem;
+  }
+  .card p {
+    font-size: 0.875rem;
+  }
 }

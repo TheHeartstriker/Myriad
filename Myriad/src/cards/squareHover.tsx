@@ -4,12 +4,13 @@ import type { GridEl } from "../flowFields/types";
 function SquareHover() {
   const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const Pix_size = 50;
+  const [pixSize, setPixSize] = useState<number>(50);
   const gridRef = useRef<GridEl[][]>([]);
   const rowColRef = useRef<{ row: number; col: number }>({ row: 0, col: 0 });
   const frameId = useRef<number>(0);
   const mousePosRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const hoveredCellRef = useRef<{ row: number; col: number } | null>(null);
+  const parentRectRef = useRef<DOMRect | null>(null);
 
   function clamp(value: number, min: number, max: number): number {
     return Math.min(Math.max(value, min), max);
@@ -19,30 +20,22 @@ function SquareHover() {
     const canvas: HTMLCanvasElement | null = canvasRef.current;
     if (!canvas) return;
 
-    const updateCanvasSize = () => {
-      // Get the parent container's dimensions instead of window
+    const context = canvas.getContext("2d");
+    setCtx(context);
+    const resizeCanvas = () => {
       const parent = canvas.parentElement;
       if (!parent) return;
-
       const parentRect = parent.getBoundingClientRect();
-      const cols = Math.floor(parentRect.width / Pix_size);
-      const rows = Math.floor(parentRect.height / Pix_size);
-
-      canvas.width = cols * Pix_size;
-      canvas.height = rows * Pix_size;
-
-      const context = canvas.getContext("2d");
-      setCtx(context);
-      Impose();
+      parentRectRef.current = parentRect;
+      //Unique resizing approach making the canvas size exactly match parent size
+      const cols = Math.floor(parentRect.width / pixSize);
+      const rows = Math.floor(parentRect.height / pixSize);
+      canvas.width = cols * pixSize;
+      canvas.height = rows * pixSize;
+      setCtx(canvas.getContext("2d"));
+      Impose(cols, rows);
     };
-
-    // Initial setup
-    updateCanvasSize();
-
-    const resizeCanvas = () => {
-      updateCanvasSize();
-    };
-
+    resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
     return () => {
       window.removeEventListener("resize", resizeCanvas);
@@ -55,57 +48,52 @@ function SquareHover() {
     leftX: number,
     topY: number
   ): GridEl[][] {
-    let arr = new Array(Rows);
-    for (let i = 0; i < Rows; i++) {
+    let arr = new Array(Rows); //Create array of empty rows
+
+    for (let i = 0; i < arr.length; i++) {
+      //Index into row and create empty columns
       arr[i] = new Array(Cols);
-      for (let j = 0; j < Cols; j++) {
+      //Iterate over the empty columns in the row
+      for (let j = 0; j < arr[i].length; j++) {
         arr[i][j] = {
-          opacity: 0.2,
-          x: leftX + j * Pix_size,
-          y: topY + i * Pix_size,
+          x: leftX + j * pixSize,
+          y: topY + i * pixSize,
+          opacity: 0.0,
           color: "#b51a2b",
         };
       }
     }
+
     return arr;
   }
 
   //Defines the number of rows and columns based on the window size
-  function Impose() {
+  function Impose(col: number = 0, row: number = 0) {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const rows = Math.floor(canvas.height / Pix_size);
-    const cols = Math.floor(canvas.width / Pix_size);
 
-    rowColRef.current = { row: rows, col: cols };
+    rowColRef.current = { row: row, col: col };
     // Creates the grid based on the number of rows and columns
     let initialGrid = create2DArray(
-      rows,
-      cols,
+      row,
+      col,
       0, // leftX starts at 0
       0 // topY starts at 0
     );
     gridRef.current = initialGrid;
   }
 
-  function drawSquare(
-    x: number,
-    y: number,
-    ctx: CanvasRenderingContext2D | null,
-    Pix_size: number,
-    color: string = "#ae00ff",
-    fillColor: string | null = null
-  ) {
-    if (!ctx) return;
-    ctx.strokeStyle = `${color}`;
+  function drawSquare(x: number, y: number, color: string, opacity: number) {
+    if (!ctx || !gridRef.current.length) return;
+    //Fill color square
+    ctx.fillStyle = color;
+    ctx.globalAlpha = opacity;
+    ctx.fillRect(x, y, pixSize, pixSize);
+    //Border color square
+    ctx.globalAlpha = 1.0;
+    ctx.strokeStyle = color;
     ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.rect(x, y, Pix_size, Pix_size);
-    if (fillColor) {
-      ctx.fillStyle = `${fillColor}`;
-      ctx.fill();
-    }
-    ctx.stroke();
+    ctx.strokeRect(x, y, pixSize, pixSize);
   }
 
   function render() {
@@ -118,14 +106,6 @@ function SquareHover() {
         gridRef.current[hovRow][hovCol].opacity + 0.05,
         0,
         1
-      );
-      drawSquare(
-        gridRef.current[hovRow][hovCol].x,
-        gridRef.current[hovRow][hovCol].y,
-        ctx,
-        Pix_size,
-        gridRef.current[hovRow][hovCol].color,
-        `rgba(181, 26, 43, ${gridRef.current[hovRow][hovCol].opacity})`
       );
     }
     for (let i = 0; i < rowColRef.current.row; i++) {
@@ -140,36 +120,27 @@ function SquareHover() {
         drawSquare(
           gridRef.current[i][j].x,
           gridRef.current[i][j].y,
-          ctx,
-          Pix_size,
           gridRef.current[i][j].color,
-          `rgba(181, 26, 43, ${gridRef.current[i][j].opacity})`
+          gridRef.current[i][j].opacity
         );
       }
     }
   }
 
-  function handleMouseMove(e: MouseEvent) {
+  function MouseEffect() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const rect = canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-
-    // Update mouse position ref
-    mousePosRef.current = { x: mouseX, y: mouseY };
-
     // Check if mouse is within canvas bounds
     if (
-      mouseX >= 0 &&
-      mouseX <= canvas.width &&
-      mouseY >= 0 &&
-      mouseY <= canvas.height
+      mousePosRef.current.x >= 0 &&
+      mousePosRef.current.x <= canvas.width &&
+      mousePosRef.current.y >= 0 &&
+      mousePosRef.current.y <= canvas.height
     ) {
       // Calculate grid position
-      const col = Math.floor(mouseX / Pix_size);
-      const row = Math.floor(mouseY / Pix_size);
+      const col = Math.floor(mousePosRef.current.x / pixSize);
+      const row = Math.floor(mousePosRef.current.y / pixSize);
 
       // Fill the hovered cell
       if (
@@ -179,28 +150,35 @@ function SquareHover() {
         col < rowColRef.current.col
       ) {
         hoveredCellRef.current = { row, col };
+      } else {
+        hoveredCellRef.current = null;
       }
     }
   }
 
+  function mouseTracker(e: MouseEvent) {
+    const rect = parentRectRef.current;
+    if (!rect) return;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    mousePosRef.current.x = mouseX;
+    mousePosRef.current.y = mouseY;
+  }
   useEffect(() => {
     const parent = canvasRef.current?.parentElement;
     if (!parent) return;
 
-    parent.addEventListener("mousemove", handleMouseMove);
+    parent.addEventListener("mousemove", mouseTracker);
 
     return () => {
-      parent.removeEventListener("mousemove", handleMouseMove);
+      parent.removeEventListener("mousemove", mouseTracker);
     };
   }, []);
 
   useEffect(() => {
-    Impose();
-  }, [ctx]);
-
-  useEffect(() => {
     function animate() {
       frameId.current = requestAnimationFrame(animate);
+      MouseEffect();
       render();
     }
     animate();
