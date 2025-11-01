@@ -23,17 +23,14 @@ function SquareHover() {
     const context = canvas.getContext("2d");
     setCtx(context);
     const resizeCanvas = () => {
-      const parent = canvas.parentElement;
+      const parent = document.querySelector(".card3");
       if (!parent) return;
       const parentRect = parent.getBoundingClientRect();
       parentRectRef.current = parentRect;
-      //Unique resizing approach making the canvas size exactly match parent size
-      const cols = Math.floor(parentRect.width / pixSize);
-      const rows = Math.floor(parentRect.height / pixSize);
-      canvas.width = cols * pixSize;
-      canvas.height = rows * pixSize;
+      canvas.width = parentRect.width * 1.1;
+      canvas.height = parentRect.height * 1.1;
       setCtx(canvas.getContext("2d"));
-      Impose(cols, rows);
+      Impose();
     };
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
@@ -68,15 +65,16 @@ function SquareHover() {
   }
 
   //Defines the number of rows and columns based on the window size
-  function Impose(col: number = 0, row: number = 0) {
+  function Impose() {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
-    rowColRef.current = { row: row, col: col };
+    const rows = Math.floor(canvas.height / pixSize);
+    const cols = Math.floor(canvas.width / pixSize);
+    rowColRef.current = { row: rows, col: cols };
     // Creates the grid based on the number of rows and columns
     let initialGrid = create2DArray(
-      row,
-      col,
+      rows,
+      cols,
       0, // leftX starts at 0
       0 // topY starts at 0
     );
@@ -157,12 +155,23 @@ function SquareHover() {
   }
 
   function mouseTracker(e: MouseEvent) {
-    const rect = parentRectRef.current;
-    if (!rect) return;
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    mousePosRef.current.x = mouseX;
-    mousePosRef.current.y = mouseY;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    // Get canvas position directly
+    const canvasRect = canvas.getBoundingClientRect();
+
+    // Get mouse position relative to canvas
+    const mouseX = e.clientX - canvasRect.left;
+    const mouseY = e.clientY - canvasRect.top;
+
+    // The canvas is displayed at parent size but has 1.1x resolution
+    // So we need to scale the mouse position to match canvas coordinates
+    const scaleX = canvas.width / canvasRect.width;
+    const scaleY = canvas.height / canvasRect.height;
+
+    mousePosRef.current.x = mouseX * scaleX;
+    mousePosRef.current.y = mouseY * scaleY;
   }
   useEffect(() => {
     const parent = canvasRef.current?.parentElement;
@@ -189,7 +198,7 @@ function SquareHover() {
     };
   }, [ctx]);
 
-  return <canvas className="card-canvas" ref={canvasRef}></canvas>;
+  return <canvas className="card-canvas2" ref={canvasRef}></canvas>;
 }
 
 export default SquareHover;
